@@ -1,6 +1,6 @@
 import time, os
 from threading import Thread, current_thread
-from multiprocessing import Process, current_process
+from multiprocessing import Process, current_process, cpu_count
 
 """
 What is the difference between multiprocessing and multithreading
@@ -9,12 +9,6 @@ What is the difference between multiprocessing and multithreading
 
 2. In multi processing there are multiple processes each with its own python interpreter instance and memory space, in multi processing tasks can be distributed over variety of cores on a CPU this means processes can run simultaneously rather than concurrently
 """
-
-import time, os
-from threading import Thread, current_thread
-from multiprocessing import Process, current_process
- 
- 
 COUNT = 200000000
 SLEEP = 10
  
@@ -55,13 +49,50 @@ if __name__=="__main__":
     # io_bound(SLEEP) 
     # io_bound(SLEEP)
 
-    # CODE SNIPPET 2
+    # CODE SNIPPET 2: This code snippet uses threading so when io_boudn is sleeping the next thread can continute to execute
     
-    for _ in range(2):
-        x = Thread(target=io_bound, args=(SLEEP,))
-        x.start()
+    # for _ in range(2):
+    #     x = Thread(target=io_bound, args=(SLEEP,))
+    #     x.start()
     
-    x.join()
+    # x.join()
     
+    # CODE SNIPPET 3: CPU bound task used for counting, goes sequentially Finished
+    # in approx 16 seconds
+
+    # cpu_bound(COUNT)
+    # cpu_bound(COUNT)
+
+    # CODE SNIPPET 4: CPU Bound tasks with threading, this also took 16 seconds
+    # global interpreter lock 
+
+    # t1 = Thread(target = cpu_bound, args =(COUNT, ))
+    # t2 = Thread(target = cpu_bound, args =(COUNT, ))
+    # t1.start()
+    # t2.start()
+    # t1.join()
+    # t2.join()
+    
+    # CODE SNIPPET 4: CPU Bound tasks with multi processing, this finished in 8 seconds
+    # nearly half the time of the previous segments. 
+
+    # processes = []
+    # print(f'number of logical processors {cpu_count()}')
+    # for i in range(cpu_count()):
+    #     p = Process(target=cpu_bound, args=(COUNT,))
+    #     p.start()
+    #     processes.append(p)
+
+    # for p in processes:
+    #     p.join()
+
+    # Code Snippet 5: Multi process for io_bound tasks
+    p1 = Process(target = io_bound, args =(SLEEP, ))
+    p2 = Process(target = io_bound, args =(SLEEP, ))
+    p1.start()
+    p2.start()
+    p1.join()
+    p2.join()
+
     end = time.time()
     print('Time taken in seconds -', end - start)
